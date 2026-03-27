@@ -18,6 +18,7 @@
             <div id="viewport">
                 <div id="image-container">
                     <img id="card-image" src="" alt="">
+                    <img id="edge-overlay" src="" alt="">
                 </div>
                 <!-- 8 border lines rendered by JS -->
             </div>
@@ -69,6 +70,43 @@
                 </div>
                 <button id="filter-reset" class="filter-reset-btn">Reset Filters</button>
             </div>
+            <div class="filter-group">
+                <div class="edge-header">
+                    <h2>Edge Detection</h2>
+                    <button id="edge-toggle" class="edge-toggle-btn" title="Toggle edge overlay (E)">Off</button>
+                </div>
+                <div class="edge-controls">
+                    <div class="filter-row">
+                        <label for="edge-mode">Mode</label>
+                        <select id="edge-mode">
+                            <option value="sobel">Sobel</option>
+                            <option value="strong">Strong Edges</option>
+                            <option value="horizontal">Horizontal Only</option>
+                            <option value="vertical">Vertical Only</option>
+                        </select>
+                    </div>
+                    <div class="filter-row">
+                        <label for="edge-threshold">Threshold</label>
+                        <input type="range" id="edge-threshold" min="0" max="100" value="15" step="1">
+                        <span class="filter-val" id="edge-threshold-val">15</span>
+                    </div>
+                    <div class="filter-row">
+                        <label for="edge-opacity">Opacity</label>
+                        <input type="range" id="edge-opacity" min="10" max="100" value="85" step="1">
+                        <span class="filter-val" id="edge-opacity-val">85%</span>
+                    </div>
+                    <div class="filter-row">
+                        <label for="edge-color">Color</label>
+                        <div class="edge-color-options">
+                            <button class="edge-color-swatch active" data-color="green" style="background:#00ff88" title="Green"></button>
+                            <button class="edge-color-swatch" data-color="white" style="background:#ffffff" title="White"></button>
+                            <button class="edge-color-swatch" data-color="cyan" style="background:#00ccff" title="Cyan"></button>
+                            <button class="edge-color-swatch" data-color="yellow" style="background:#ffee00" title="Yellow"></button>
+                            <button class="edge-color-swatch" data-color="red" style="background:#ff4444" title="Red"></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div class="shortcut-legend">
                 <h3>Keyboard Shortcuts</h3>
                 <table>
@@ -84,6 +122,7 @@
                     <tr><td><kbd>Shift+Arrow</kbd></td><td>Nudge 0.1px</td></tr>
                     <tr><td><kbd>F</kbd></td><td>Fit zoom</td></tr>
                     <tr><td><kbd>R</kbd></td><td>Reset rotation</td></tr>
+                    <tr><td><kbd>E</kbd></td><td>Toggle edges</td></tr>
                     <tr><td><kbd>Esc</kbd></td><td>Clear image</td></tr>
                 </table>
             </div>

@@ -13,6 +13,10 @@
     let panStartX = 0, panStartY = 0;
     let panStartPanX = 0, panStartPanY = 0;
     let imageLoaded = false;
+    let edgeActive = false;
+    let edgeDirty = true; // needs recompute
+    let edgeColor = [0, 255, 136]; // green
+    let currentImageSrc = null;
 
     // Lines: positions in image-pixel coordinates
     // 0: outer-left (V), 1: inner-left (V), 2: inner-right (V), 3: outer-right (V)
@@ -57,6 +61,15 @@
     const filterBrightnessVal = document.getElementById('filter-brightness-val');
     const filterSaturationVal = document.getElementById('filter-saturation-val');
     const filterResetBtn = document.getElementById('filter-reset');
+    const edgeOverlay    = document.getElementById('edge-overlay');
+    const edgeToggleBtn  = document.getElementById('edge-toggle');
+    const edgeMode       = document.getElementById('edge-mode');
+    const edgeThreshold  = document.getElementById('edge-threshold');
+    const edgeOpacity    = document.getElementById('edge-opacity');
+    const edgeThresholdVal = document.getElementById('edge-threshold-val');
+    const edgeOpacityVal = document.getElementById('edge-opacity-val');
+    const edgeControls   = document.querySelector('.edge-controls');
+    const edgeColorSwatches = document.querySelectorAll('.edge-color-swatch');
 
     // ── Line DOM elements ──
     const lineEls = [];
@@ -109,12 +122,15 @@
             cardImage.src = src;
             cardImage.style.width = imgNatW + 'px';
             cardImage.style.height = imgNatH + 'px';
+            currentImageSrc = src;
             imageLoaded = true;
+            edgeDirty = true;
             emptyState.classList.add('hidden');
             viewport.classList.add('active');
             initLinePositions();
             fitZoom();
             updateAll();
+            if (edgeActive) computeEdgeOverlay();
         };
         img.src = src;
     }
@@ -194,8 +210,11 @@
     function applyTransform() {
         imgContainer.style.transform =
             'translate(' + panX + 'px,' + panY + 'px) scale(' + zoom + ')';
-        cardImage.style.transform = 'rotate(' + (rotation / 10) + 'deg)';
+        var rotCss = 'rotate(' + (rotation / 10) + 'deg)';
+        cardImage.style.transform = rotCss;
         cardImage.style.transformOrigin = 'center center';
+        edgeOverlay.style.transform = rotCss;
+        edgeOverlay.style.transformOrigin = 'center center';
         zoomLabel.textContent = 'Zoom: ' + zoom.toFixed(1) + 'x';
     }
 
@@ -451,6 +470,13 @@
             return;
         }
 
+        // E = toggle edge detection
+        if ((key === 'e' || key === 'E') && !e.ctrlKey && !e.metaKey) {
+            toggleEdge();
+            e.preventDefault();
+            return;
+        }
+
         // R = reset rotation
         if ((key === 'r' || key === 'R') && !e.ctrlKey && !e.metaKey) {
             resetRotation();
@@ -500,8 +526,11 @@
         resetRotation();
         // Reset filters
         resetFilters();
+        // Reset edge detection
+        resetEdge();
         // Reset line selection
         updateLineSelection();
+        currentImageSrc = null;
     }
 
     resetImageBtn.addEventListener('click', resetImage);
@@ -533,8 +562,185 @@
     filterSaturation.addEventListener('input', applyFilters);
     filterResetBtn.addEventListener('click', resetFilters);
 
-    // ── Keyboard (Esc to clear) ──
-    // Handled inside the existing keydown listener below
+    // ── Edge Detection ──
+    var edgeCanvas = document.createElement('canvas');
+    var edgeCtx = edgeCanvas.getContext('2d', { willReadFrequently: true });
+
+    function toggleEdge() {
+        edgeActive = !edgeActive;
+        edgeToggleBtn.textContent = edgeActive ? 'On' : 'Off';
+        edgeToggleBtn.classList.toggle('active', edgeActive);
+        edgeControls.classList.toggle('enabled', edgeActive);
+        if (edgeActive && imageLoaded) {
+            computeEdgeOverlay();
+        } else {
+            edgeOverlay.classList.remove('active');
+        }
+    }
+
+    edgeToggleBtn.addEventListener('click', toggleEdge);
+
+    function computeEdgeOverlay() {
+        if (!imageLoaded || !currentImageSrc) return;
+
+        var mode = edgeMode.value;
+        var thresh = parseInt(edgeThreshold.value);
+        var opacity = parseInt(edgeOpacity.value) / 100;
+        var cr = edgeColor[0], cg = edgeColor[1], cb = edgeColor[2];
+
+        // Draw original image to canvas at natural size
+        // For large images, downsample to max 2000px for performance
+        var scale = 1;
+        var maxDim = 2000;
+        if (imgNatW > maxDim || imgNatH > maxDim) {
+            scale = maxDim / Math.max(imgNatW, imgNatH);
+        }
+        var w = Math.round(imgNatW * scale);
+        var h = Math.round(imgNatH * scale);
+
+        edgeCanvas.width = w;
+        edgeCanvas.height = h;
+
+        var img = new Image();
+        img.onload = function () {
+            edgeCtx.drawImage(img, 0, 0, w, h);
+            var srcData = edgeCtx.getImageData(0, 0, w, h);
+            var src = srcData.data;
+
+            // Convert to grayscale luminance array
+            var gray = new Float32Array(w * h);
+            for (var i = 0; i < w * h; i++) {
+                var r = src[i * 4];
+                var g = src[i * 4 + 1];
+                var b = src[i * 4 + 2];
+                gray[i] = 0.299 * r + 0.587 * g + 0.114 * b;
+            }
+
+            // Sobel kernels
+            var outData = edgeCtx.createImageData(w, h);
+            var out = outData.data;
+
+            for (var y = 1; y < h - 1; y++) {
+                for (var x = 1; x < w - 1; x++) {
+                    var idx = y * w + x;
+
+                    // 3x3 neighborhood
+                    var tl = gray[(y-1)*w + (x-1)];
+                    var t  = gray[(y-1)*w + x];
+                    var tr = gray[(y-1)*w + (x+1)];
+                    var ml = gray[y*w + (x-1)];
+                    var mr = gray[y*w + (x+1)];
+                    var bl = gray[(y+1)*w + (x-1)];
+                    var bm = gray[(y+1)*w + x];
+                    var br = gray[(y+1)*w + (x+1)];
+
+                    // Sobel Gx (vertical edges) and Gy (horizontal edges)
+                    var gx = -tl + tr - 2*ml + 2*mr - bl + br;
+                    var gy = -tl - 2*t - tr + bl + 2*bm + br;
+
+                    var mag;
+                    if (mode === 'horizontal') {
+                        mag = Math.abs(gy);
+                    } else if (mode === 'vertical') {
+                        mag = Math.abs(gx);
+                    } else {
+                        mag = Math.sqrt(gx * gx + gy * gy);
+                    }
+
+                    // Apply threshold
+                    var threshVal = thresh * 2.55; // map 0-100 to 0-255ish
+                    if (mag < threshVal) mag = 0;
+
+                    // For "strong" mode, apply extra contrast
+                    if (mode === 'strong') {
+                        mag = mag > threshVal ? Math.min(255, mag * 2) : 0;
+                    }
+
+                    // Clamp
+                    var v = Math.min(255, mag);
+
+                    var oi = idx * 4;
+                    out[oi]     = Math.round((cr / 255) * v);
+                    out[oi + 1] = Math.round((cg / 255) * v);
+                    out[oi + 2] = Math.round((cb / 255) * v);
+                    out[oi + 3] = Math.round(v * opacity);
+                }
+            }
+
+            edgeCtx.putImageData(outData, 0, 0);
+            edgeOverlay.src = edgeCanvas.toDataURL('image/png');
+            edgeOverlay.style.width = imgNatW + 'px';
+            edgeOverlay.style.height = imgNatH + 'px';
+            edgeOverlay.style.opacity = '1';
+            edgeOverlay.classList.add('active');
+            edgeDirty = false;
+        };
+        img.src = currentImageSrc;
+    }
+
+    // Debounce helper for heavy recomputes
+    var edgeDebounceTimer = null;
+    function debouncedEdgeCompute() {
+        if (edgeDebounceTimer) clearTimeout(edgeDebounceTimer);
+        edgeDebounceTimer = setTimeout(function () {
+            if (edgeActive && edgeDirty) computeEdgeOverlay();
+        }, 80);
+    }
+
+    // Edge controls
+    edgeMode.addEventListener('change', function () {
+        edgeDirty = true;
+        if (edgeActive) computeEdgeOverlay();
+    });
+
+    edgeThreshold.addEventListener('input', function () {
+        edgeThresholdVal.textContent = edgeThreshold.value;
+        edgeDirty = true;
+        debouncedEdgeCompute();
+    });
+
+    edgeOpacity.addEventListener('input', function () {
+        edgeOpacityVal.textContent = edgeOpacity.value + '%';
+        edgeDirty = true;
+        debouncedEdgeCompute();
+    });
+
+    // Edge color swatches
+    var colorMap = {
+        green:  [0, 255, 136],
+        white:  [255, 255, 255],
+        cyan:   [0, 204, 255],
+        yellow: [255, 238, 0],
+        red:    [255, 68, 68]
+    };
+
+    edgeColorSwatches.forEach(function (swatch) {
+        swatch.addEventListener('click', function () {
+            edgeColorSwatches.forEach(function (s) { s.classList.remove('active'); });
+            swatch.classList.add('active');
+            edgeColor = colorMap[swatch.dataset.color] || [0, 255, 136];
+            edgeDirty = true;
+            if (edgeActive) computeEdgeOverlay();
+        });
+    });
+
+    function resetEdge() {
+        edgeActive = false;
+        edgeDirty = true;
+        edgeToggleBtn.textContent = 'Off';
+        edgeToggleBtn.classList.remove('active');
+        edgeControls.classList.remove('enabled');
+        edgeOverlay.classList.remove('active');
+        edgeOverlay.src = '';
+        edgeMode.value = 'sobel';
+        edgeThreshold.value = 15;
+        edgeThresholdVal.textContent = '15';
+        edgeOpacity.value = 85;
+        edgeOpacityVal.textContent = '85%';
+        edgeColor = [0, 255, 136];
+        edgeColorSwatches.forEach(function (s) { s.classList.remove('active'); });
+        edgeColorSwatches[0].classList.add('active');
+    }
 
     // ── Initial state ──
     updateAll();

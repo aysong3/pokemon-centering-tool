@@ -106,6 +106,21 @@ html, body {
     image-rendering: auto;
 }
 
+#edge-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: none;
+    max-width: none;
+    pointer-events: none;
+    mix-blend-mode: screen;
+    image-rendering: auto;
+}
+
+#edge-overlay.active {
+    display: block;
+}
+
 /* ── Border Lines ── */
 .border-line {
     position: absolute;
@@ -553,6 +568,93 @@ kbd {
 .filter-reset-btn:hover {
     background: #1a4a7a;
     color: var(--text-primary);
+}
+
+/* ── Edge Detection ── */
+.edge-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.edge-header h2 {
+    margin-bottom: 0 !important;
+}
+
+.edge-toggle-btn {
+    padding: 4px 14px;
+    background: var(--bg-card);
+    color: var(--text-muted);
+    border: 1px solid #3a3a6a;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.edge-toggle-btn:hover {
+    background: #1a4a7a;
+    color: var(--text-primary);
+}
+
+.edge-toggle-btn.active {
+    background: #0a3a2a;
+    color: var(--green);
+    border-color: var(--green);
+}
+
+.edge-controls {
+    opacity: 0.4;
+    pointer-events: none;
+    transition: opacity 0.2s;
+}
+
+.edge-controls.enabled {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.edge-controls select {
+    flex: 1;
+    padding: 3px 6px;
+    background: var(--bg-card);
+    color: var(--text-primary);
+    border: 1px solid #3a3a6a;
+    border-radius: 4px;
+    font-size: 12px;
+    outline: none;
+    cursor: pointer;
+}
+
+.edge-controls select:hover {
+    border-color: #5a5a8a;
+}
+
+.edge-color-options {
+    display: flex;
+    gap: 6px;
+    flex: 1;
+}
+
+.edge-color-swatch {
+    width: 22px;
+    height: 22px;
+    border-radius: 4px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: border-color 0.15s, transform 0.1s;
+    padding: 0;
+}
+
+.edge-color-swatch:hover {
+    transform: scale(1.15);
+}
+
+.edge-color-swatch.active {
+    border-color: #ffffff;
 }
 
 /* ── Controls Divider & Clear Button ── */
