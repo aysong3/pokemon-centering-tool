@@ -49,6 +49,14 @@
     const lrRightPx   = document.getElementById('lr-right-px');
     const tbTopPx     = document.getElementById('tb-top-px');
     const tbBottomPx  = document.getElementById('tb-bottom-px');
+    const resetImageBtn = document.getElementById('reset-image');
+    const filterContrast   = document.getElementById('filter-contrast');
+    const filterBrightness = document.getElementById('filter-brightness');
+    const filterSaturation = document.getElementById('filter-saturation');
+    const filterContrastVal   = document.getElementById('filter-contrast-val');
+    const filterBrightnessVal = document.getElementById('filter-brightness-val');
+    const filterSaturationVal = document.getElementById('filter-saturation-val');
+    const filterResetBtn = document.getElementById('filter-reset');
 
     // ── Line DOM elements ──
     const lineEls = [];
@@ -339,6 +347,19 @@
     }
 
     function updateMeasurements() {
+        if (!imageLoaded) {
+            lrRatio.textContent = '--.- : --.-';
+            tbRatio.textContent = '--.- : --.-';
+            lrGauge.style.width = '50%';
+            lrGauge.className = 'gauge-fill';
+            tbGauge.style.width = '50%';
+            tbGauge.className = 'gauge-fill';
+            lrLeftPx.textContent = 'L: --';
+            lrRightPx.textContent = 'R: --';
+            tbTopPx.textContent = 'T: --';
+            tbBottomPx.textContent = 'B: --';
+            return;
+        }
         const leftW = lines[1] - lines[0];   // inner-left − outer-left
         const rightW = lines[3] - lines[2];  // outer-right − inner-right
         const topH = lines[5] - lines[4];    // inner-top − outer-top
@@ -402,8 +423,16 @@
 
     // ── Keyboard ──
     document.addEventListener('keydown', function (e) {
-        if (!imageLoaded) return;
         const key = e.key;
+
+        // Esc = clear image (works even with no image)
+        if (key === 'Escape') {
+            if (imageLoaded) resetImage();
+            e.preventDefault();
+            return;
+        }
+
+        if (!imageLoaded) return;
 
         // Number keys 1-8 select a line
         if (key >= '1' && key <= '8' && !e.ctrlKey && !e.altKey && !e.metaKey) {
@@ -447,8 +476,65 @@
         }
     });
 
-    // Prevent default for Ctrl+V only if we handle paste
-    // (handled in paste listener above)
+    // ── Reset Image ──
+    function resetImage() {
+        imageLoaded = false;
+        imgNatW = 0;
+        imgNatH = 0;
+        zoom = 1;
+        panX = 0;
+        panY = 0;
+        selectedLineIdx = -1;
+        draggingLine = -1;
+        cardImage.src = '';
+        cardImage.style.width = '';
+        cardImage.style.height = '';
+        cardImage.style.transform = '';
+        cardImage.style.filter = '';
+        imgContainer.style.transform = '';
+        viewport.classList.remove('active');
+        emptyState.classList.remove('hidden');
+        zoomLabel.textContent = 'Zoom: 1.0x';
+        fileInput.value = '';
+        // Reset rotation
+        resetRotation();
+        // Reset filters
+        resetFilters();
+        // Reset line selection
+        updateLineSelection();
+    }
+
+    resetImageBtn.addEventListener('click', resetImage);
+
+    // ── Image Filters ──
+    function applyFilters() {
+        const c = filterContrast.value;
+        const b = filterBrightness.value;
+        const s = filterSaturation.value;
+        cardImage.style.filter =
+            'contrast(' + c + '%) brightness(' + b + '%) saturate(' + s + '%)';
+        filterContrastVal.textContent = c + '%';
+        filterBrightnessVal.textContent = b + '%';
+        filterSaturationVal.textContent = s + '%';
+    }
+
+    function resetFilters() {
+        filterContrast.value = 100;
+        filterBrightness.value = 100;
+        filterSaturation.value = 100;
+        filterContrastVal.textContent = '100%';
+        filterBrightnessVal.textContent = '100%';
+        filterSaturationVal.textContent = '100%';
+        cardImage.style.filter = '';
+    }
+
+    filterContrast.addEventListener('input', applyFilters);
+    filterBrightness.addEventListener('input', applyFilters);
+    filterSaturation.addEventListener('input', applyFilters);
+    filterResetBtn.addEventListener('click', resetFilters);
+
+    // ── Keyboard (Esc to clear) ──
+    // Handled inside the existing keydown listener below
 
     // ── Initial state ──
     updateAll();

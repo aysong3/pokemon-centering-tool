@@ -470,6 +470,117 @@ kbd {
     display: none;
 }
 
+/* ── Image Filters ── */
+.filter-group {
+    background: rgba(15, 15, 35, 0.5);
+    padding: 18px;
+    border-radius: 8px;
+    border: 1px solid #2a2a4a;
+}
+
+.filter-group h2 {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+}
+
+.filter-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.filter-row label {
+    font-size: 12px;
+    color: var(--text-muted);
+    min-width: 68px;
+}
+
+.filter-row input[type="range"] {
+    flex: 1;
+    height: 4px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: var(--gauge-bg);
+    border-radius: 2px;
+    outline: none;
+}
+
+.filter-row input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--accent-cyan);
+    cursor: pointer;
+    border: none;
+}
+
+.filter-row input[type="range"]::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--accent-cyan);
+    cursor: pointer;
+    border: none;
+}
+
+.filter-val {
+    font-size: 11px;
+    color: var(--text-muted);
+    min-width: 38px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.filter-reset-btn {
+    margin-top: 8px;
+    width: 100%;
+    padding: 5px 12px;
+    background: var(--bg-card);
+    color: var(--text-muted);
+    border: 1px solid #3a3a6a;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 11px;
+    transition: background 0.15s, color 0.15s;
+}
+
+.filter-reset-btn:hover {
+    background: #1a4a7a;
+    color: var(--text-primary);
+}
+
+/* ── Controls Divider & Clear Button ── */
+.controls-divider {
+    width: 1px;
+    height: 18px;
+    background: #3a3a6a;
+    margin: 0 2px;
+}
+
+#reset-image {
+    padding: 4px 10px;
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid #3a3a6a;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 11px;
+    white-space: nowrap;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+#reset-image:hover {
+    background: #4a1a1a;
+    color: var(--red);
+    border-color: var(--red);
+}
+
 /* ── Drag-over highlight ── */
 #workspace.drag-over {
     outline: 2px dashed var(--accent-cyan);

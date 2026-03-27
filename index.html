@@ -26,6 +26,8 @@
                 <button id="zoom-in" title="Zoom In">+</button>
                 <button id="zoom-out" title="Zoom Out">&minus;</button>
                 <button id="zoom-fit" title="Fit (F)">Fit</button>
+                <div class="controls-divider"></div>
+                <button id="reset-image" title="Clear image (Esc)">&#x2715; Clear</button>
             </div>
         </div>
         <div id="panel">
@@ -48,6 +50,25 @@
                     <span id="tb-bottom-px">B: --</span>
                 </div>
             </div>
+            <div class="filter-group">
+                <h2>Image Filters</h2>
+                <div class="filter-row">
+                    <label for="filter-contrast">Contrast</label>
+                    <input type="range" id="filter-contrast" min="50" max="300" value="100" step="1">
+                    <span class="filter-val" id="filter-contrast-val">100%</span>
+                </div>
+                <div class="filter-row">
+                    <label for="filter-brightness">Brightness</label>
+                    <input type="range" id="filter-brightness" min="20" max="300" value="100" step="1">
+                    <span class="filter-val" id="filter-brightness-val">100%</span>
+                </div>
+                <div class="filter-row">
+                    <label for="filter-saturation">Saturation</label>
+                    <input type="range" id="filter-saturation" min="0" max="300" value="100" step="1">
+                    <span class="filter-val" id="filter-saturation-val">100%</span>
+                </div>
+                <button id="filter-reset" class="filter-reset-btn">Reset Filters</button>
+            </div>
             <div class="shortcut-legend">
                 <h3>Keyboard Shortcuts</h3>
                 <table>
@@ -63,6 +84,7 @@
                     <tr><td><kbd>Shift+Arrow</kbd></td><td>Nudge 0.1px</td></tr>
                     <tr><td><kbd>F</kbd></td><td>Fit zoom</td></tr>
                     <tr><td><kbd>R</kbd></td><td>Reset rotation</td></tr>
+                    <tr><td><kbd>Esc</kbd></td><td>Clear image</td></tr>
                 </table>
             </div>
         </div>
