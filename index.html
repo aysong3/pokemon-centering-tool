@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Card Centering Tool</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <div id="workspace">
+            <div id="empty-state">
+                <div class="empty-icon">&#x1F0CF;</div>
+                <p>Paste from clipboard or drop an image here</p>
+                <button id="file-pick-btn">Choose File</button>
+                <input type="file" id="file-input" accept="image/*" hidden>
+            </div>
+            <div id="viewport">
+                <div id="image-container">
+                    <img id="card-image" src="" alt="">
+                </div>
+                <!-- 8 border lines rendered by JS -->
+            </div>
+            <div id="zoom-controls">
+                <span id="zoom-label">Zoom: 1.0x</span>
+                <button id="zoom-in" title="Zoom In">+</button>
+                <button id="zoom-out" title="Zoom Out">&minus;</button>
+                <button id="zoom-fit" title="Fit (F)">Fit</button>
+            </div>
+        </div>
+        <div id="panel">
+            <h1>Centering Measurements</h1>
+            <div class="measurement-group">
+                <h2>Left / Right</h2>
+                <div class="ratio-display" id="lr-ratio">50.0 : 50.0</div>
+                <div class="gauge-track"><div class="gauge-fill" id="lr-gauge"></div></div>
+                <div class="border-details">
+                    <span id="lr-left-px">L: --</span>
+                    <span id="lr-right-px">R: --</span>
+                </div>
+            </div>
+            <div class="measurement-group">
+                <h2>Top / Bottom</h2>
+                <div class="ratio-display" id="tb-ratio">50.0 : 50.0</div>
+                <div class="gauge-track"><div class="gauge-fill" id="tb-gauge"></div></div>
+                <div class="border-details">
+                    <span id="tb-top-px">T: --</span>
+                    <span id="tb-bottom-px">B: --</span>
+                </div>
+            </div>
+            <div class="shortcut-legend">
+                <h3>Keyboard Shortcuts</h3>
+                <table>
+                    <tr><td><kbd>1</kbd></td><td>Outer Left</td></tr>
+                    <tr><td><kbd>2</kbd></td><td>Inner Left</td></tr>
+                    <tr><td><kbd>3</kbd></td><td>Inner Right</td></tr>
+                    <tr><td><kbd>4</kbd></td><td>Outer Right</td></tr>
+                    <tr><td><kbd>5</kbd></td><td>Outer Top</td></tr>
+                    <tr><td><kbd>6</kbd></td><td>Inner Top</td></tr>
+                    <tr><td><kbd>7</kbd></td><td>Inner Bottom</td></tr>
+                    <tr><td><kbd>8</kbd></td><td>Outer Bottom</td></tr>
+                    <tr><td><kbd>&larr;&rarr;&uarr;&darr;</kbd></td><td>Nudge 1px</td></tr>
+                    <tr><td><kbd>Shift+Arrow</kbd></td><td>Nudge 0.1px</td></tr>
+                    <tr><td><kbd>F</kbd></td><td>Fit zoom</td></tr>
+                    <tr><td><kbd>R</kbd></td><td>Reset rotation</td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div id="rotation-bar">
+        <label for="rotation-slider">Rotation:</label>
+        <input type="range" id="rotation-slider" min="-150" max="150" value="0" step="1">
+        <span id="rotation-value">0.0°</span>
+        <button id="rotation-reset">Reset</button>
+    </div>
+    <div id="coord-readout" class="hidden"></div>
+    <script src="app.js"></script>
+</body>
+</html>
