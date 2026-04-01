@@ -121,18 +121,30 @@
                     <tr><td><kbd>&larr;&rarr;&uarr;&darr;</kbd></td><td>Nudge 1px</td></tr>
                     <tr><td><kbd>Shift+Arrow</kbd></td><td>Nudge 0.1px</td></tr>
                     <tr><td><kbd>F</kbd></td><td>Fit zoom</td></tr>
-                    <tr><td><kbd>R</kbd></td><td>Reset rotation</td></tr>
+                    <tr><td><kbd>R</kbd></td><td>Reset straighten</td></tr>
                     <tr><td><kbd>E</kbd></td><td>Toggle edges</td></tr>
                     <tr><td><kbd>Esc</kbd></td><td>Clear image</td></tr>
                 </table>
             </div>
         </div>
     </div>
-    <div id="rotation-bar">
-        <label for="rotation-slider">Rotation:</label>
-        <input type="range" id="rotation-slider" min="-150" max="150" value="0" step="1">
-        <span id="rotation-value">0.0°</span>
-        <button id="rotation-reset">Reset</button>
+    <div id="straighten-bar">
+        <div class="straighten-row">
+            <label for="rotation-slider">Rotation</label>
+            <input type="range" id="rotation-slider" min="-150" max="150" value="0" step="1">
+            <span class="straighten-val" id="rotation-value">0.0°</span>
+        </div>
+        <div class="straighten-row">
+            <label for="persp-h-slider">H-Tilt</label>
+            <input type="range" id="persp-h-slider" min="-300" max="300" value="0" step="1">
+            <span class="straighten-val" id="persp-h-value">0.0°</span>
+        </div>
+        <div class="straighten-row">
+            <label for="persp-v-slider">V-Tilt</label>
+            <input type="range" id="persp-v-slider" min="-300" max="300" value="0" step="1">
+            <span class="straighten-val" id="persp-v-value">0.0°</span>
+        </div>
+        <button id="straighten-reset">Reset All</button>
     </div>
     <div id="coord-readout" class="hidden"></div>
     <script src="app.js"></script>

@@ -5,6 +5,8 @@
     let imgNatW = 0, imgNatH = 0;
     let zoom = 1, panX = 0, panY = 0;
     let rotation = 0; // degrees * 10 internally → display / 10
+    let perspH = 0;   // horizontal tilt, degrees * 10 (rotateY)
+    let perspV = 0;   // vertical tilt, degrees * 10 (rotateX)
     let selectedLineIdx = -1; // 0-7
     let draggingLine = -1;
     let dragStartMouse = 0;
@@ -43,7 +45,11 @@
     const zoomFitBtn  = document.getElementById('zoom-fit');
     const rotSlider   = document.getElementById('rotation-slider');
     const rotValue    = document.getElementById('rotation-value');
-    const rotReset    = document.getElementById('rotation-reset');
+    const perspHSlider = document.getElementById('persp-h-slider');
+    const perspHValue  = document.getElementById('persp-h-value');
+    const perspVSlider = document.getElementById('persp-v-slider');
+    const perspVValue  = document.getElementById('persp-v-value');
+    const straightenReset = document.getElementById('straighten-reset');
     const coordReadout= document.getElementById('coord-readout');
     const lrRatio     = document.getElementById('lr-ratio');
     const tbRatio     = document.getElementById('tb-ratio');
@@ -210,10 +216,17 @@
     function applyTransform() {
         imgContainer.style.transform =
             'translate(' + panX + 'px,' + panY + 'px) scale(' + zoom + ')';
-        var rotCss = 'rotate(' + (rotation / 10) + 'deg)';
-        cardImage.style.transform = rotCss;
+        var rotDeg = rotation / 10;
+        var hDeg = perspH / 10;
+        var vDeg = perspV / 10;
+        // Perspective + rotateY (horizontal tilt) + rotateX (vertical tilt) + rotation
+        var imgCss = 'perspective(800px)' +
+            ' rotateY(' + hDeg + 'deg)' +
+            ' rotateX(' + (-vDeg) + 'deg)' +
+            ' rotate(' + rotDeg + 'deg)';
+        cardImage.style.transform = imgCss;
         cardImage.style.transformOrigin = 'center center';
-        edgeOverlay.style.transform = rotCss;
+        edgeOverlay.style.transform = imgCss;
         edgeOverlay.style.transformOrigin = 'center center';
         zoomLabel.textContent = 'Zoom: ' + zoom.toFixed(1) + 'x';
     }
@@ -424,19 +437,45 @@
         return '';
     }
 
-    // ── Rotation ──
+    // ── Rotation & Perspective ──
     rotSlider.addEventListener('input', function () {
         rotation = parseInt(rotSlider.value);
         rotValue.textContent = (rotation / 10).toFixed(1) + '\u00B0';
         updateAll();
     });
 
-    rotReset.addEventListener('click', resetRotation);
+    perspHSlider.addEventListener('input', function () {
+        perspH = parseInt(perspHSlider.value);
+        perspHValue.textContent = (perspH / 10).toFixed(1) + '\u00B0';
+        updateAll();
+    });
+
+    perspVSlider.addEventListener('input', function () {
+        perspV = parseInt(perspVSlider.value);
+        perspVValue.textContent = (perspV / 10).toFixed(1) + '\u00B0';
+        updateAll();
+    });
+
+    straightenReset.addEventListener('click', resetStraighten);
 
     function resetRotation() {
         rotation = 0;
         rotSlider.value = 0;
         rotValue.textContent = '0.0\u00B0';
+    }
+
+    function resetPerspective() {
+        perspH = 0;
+        perspV = 0;
+        perspHSlider.value = 0;
+        perspVSlider.value = 0;
+        perspHValue.textContent = '0.0\u00B0';
+        perspVValue.textContent = '0.0\u00B0';
+    }
+
+    function resetStraighten() {
+        resetRotation();
+        resetPerspective();
         updateAll();
     }
 
@@ -477,9 +516,9 @@
             return;
         }
 
-        // R = reset rotation
+        // R = reset all straighten (rotation + perspective)
         if ((key === 'r' || key === 'R') && !e.ctrlKey && !e.metaKey) {
-            resetRotation();
+            resetStraighten();
             e.preventDefault();
             return;
         }
@@ -522,8 +561,9 @@
         emptyState.classList.remove('hidden');
         zoomLabel.textContent = 'Zoom: 1.0x';
         fileInput.value = '';
-        // Reset rotation
+        // Reset straighten (rotation + perspective)
         resetRotation();
+        resetPerspective();
         // Reset filters
         resetFilters();
         // Reset edge detection

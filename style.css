@@ -31,7 +31,7 @@ html, body {
 
 #app {
     display: flex;
-    height: calc(100% - 48px);
+    height: calc(100% - 46px);
 }
 
 /* ── Workspace ── */
@@ -401,24 +401,33 @@ kbd {
     color: var(--text-primary);
 }
 
-/* ── Rotation Bar ── */
-#rotation-bar {
-    height: 48px;
+/* ── Straighten Bar ── */
+#straighten-bar {
     background: #0e0e24;
     border-top: 1px solid #2a2a4a;
     display: flex;
     align-items: center;
-    padding: 0 24px;
-    gap: 12px;
+    padding: 6px 24px;
+    gap: 18px;
     font-size: 13px;
 }
 
-#rotation-bar label {
-    color: var(--text-muted);
-    white-space: nowrap;
+.straighten-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    min-width: 0;
 }
 
-#rotation-slider {
+.straighten-row label {
+    color: var(--text-muted);
+    white-space: nowrap;
+    font-size: 12px;
+    min-width: 52px;
+}
+
+.straighten-row input[type="range"] {
     flex: 1;
     height: 4px;
     -webkit-appearance: none;
@@ -426,9 +435,10 @@ kbd {
     background: var(--gauge-bg);
     border-radius: 2px;
     outline: none;
+    min-width: 60px;
 }
 
-#rotation-slider::-webkit-slider-thumb {
+.straighten-row input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
     width: 14px;
     height: 14px;
@@ -438,7 +448,7 @@ kbd {
     border: none;
 }
 
-#rotation-slider::-moz-range-thumb {
+.straighten-row input[type="range"]::-moz-range-thumb {
     width: 14px;
     height: 14px;
     border-radius: 50%;
@@ -447,13 +457,14 @@ kbd {
     border: none;
 }
 
-#rotation-value {
-    min-width: 50px;
+.straighten-val {
+    min-width: 44px;
     text-align: right;
     font-variant-numeric: tabular-nums;
+    font-size: 12px;
 }
 
-#rotation-reset {
+#straighten-reset {
     padding: 4px 14px;
     background: var(--bg-card);
     color: var(--text-primary);
@@ -461,9 +472,10 @@ kbd {
     border-radius: 4px;
     cursor: pointer;
     font-size: 12px;
+    white-space: nowrap;
 }
 
-#rotation-reset:hover {
+#straighten-reset:hover {
     background: #1a4a7a;
 }
 
